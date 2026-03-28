@@ -1,0 +1,27 @@
+import dotenv from "dotenv";
+dotenv.config();
+
+import Fastify, { FastifyInstance } from "fastify";
+import rolesRoute from "./routes/roles_router";
+import MysqlDataSource from "./db_connection/db_connection";
+
+const server: FastifyInstance = Fastify({});
+server.register(rolesRoute);
+
+const start = async () => {
+    try {
+        await MysqlDataSource.initialize();
+        console.log("Data Source has been initialized!");
+
+        await server.listen({ port: Number(process.env.API_PORT) });
+        console.log(`Server running on port: ${Number(process.env.API_PORT)!}`);
+
+    } catch (err) {
+        console.error("Error during Data Source initialization", err);
+        server.log.error(err);
+
+        process.exit(1);
+    }
+};
+
+start();
