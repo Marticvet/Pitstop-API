@@ -10,6 +10,8 @@ type RoleBody = {
 type RoleParams = {
     roleId: number;
 };
+
+const baseUrl = "/roles"
 /**
  * Encapsulates the routes
  * @param {FastifyInstance} fastify  Encapsulated Fastify Instance
@@ -19,7 +21,7 @@ export default function rolesRoute(
     fastify: FastifyInstance,
     _options: FastifyPluginOptions
 ) {
-    fastify.get("/", async (request, reply) => {
+    fastify.get(baseUrl, async (request, reply) => {
         const roleRepo = MysqlDataSource.getRepository(Roles);
 
         const roles = await roleRepo.find();
@@ -27,7 +29,7 @@ export default function rolesRoute(
         return reply.send(roles);
     });
 
-    fastify.get<{ Params: RoleParams }>("/:roleId", async (reqest, reply) => {
+    fastify.get<{ Params: RoleParams }>("/roles/:roleId", async (reqest, reply) => {
         const { roleId } = reqest.params;
 
         const roleRepo =
@@ -46,7 +48,7 @@ export default function rolesRoute(
         return reply.code(200).send(roleExist);
     });
 
-    fastify.post<{ Body: RoleBody }>("/", async (request, reply) => {
+    fastify.post<{ Body: RoleBody }>(baseUrl, async (request, reply) => {
         const { role } = request.body;
 
         if (role.length === 0) {
@@ -77,7 +79,7 @@ export default function rolesRoute(
     });
 
     fastify.put<{ Params: RoleParams; Body: RoleBody }>(
-        "/:roleId",
+        `${baseUrl}/:roleId`,
         async (reqest, reply) => {
             const { roleId } = reqest.params;
             const { role } = reqest.body;
@@ -114,7 +116,7 @@ export default function rolesRoute(
     );
 
     fastify.delete<{ Params: RoleParams }>(
-        "/:roleId",
+       `${baseUrl}/:roleId`,
         async (request, reply) => {
             const { roleId } = request.params;
 
