@@ -3,7 +3,7 @@ dotenv.config();
 
 import Fastify, { FastifyInstance } from "fastify";
 import rolesRoute from "./routes/roles_router";
-import MysqlDataSource from "./db_connection/db_connection";
+import MysqlDataSource from "./db/db.connect";
 
 const server: FastifyInstance = Fastify({});
 server.register(rolesRoute);

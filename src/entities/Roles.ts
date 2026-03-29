@@ -7,7 +7,7 @@ export class Roles{
     id: number;
 
     @Column()
-    role: string;
+    role!: string;
 }
 
 // * owner
