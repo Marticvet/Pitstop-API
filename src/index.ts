@@ -2,13 +2,17 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import Fastify, { FastifyInstance } from "fastify";
-import rolesRoute from "./routes/roles_router";
 import MysqlDataSource from "./db/db.connect";
-import orgranizationsRoute from "./routes/organization_routes";
+
+import userRouter from "./routes/user.routes";
+import roleRouter from "./routes/role.routes";
+import organizationRouter from "./routes/organization.routes";
 
 const server: FastifyInstance = Fastify({});
-server.register(rolesRoute);
-server.register(orgranizationsRoute);
+
+server.register(roleRouter, {prefix: "/roles"});
+server.register(organizationRouter, {prefix: "/orgranizations"});
+server.register(userRouter, {prefix: "/users"});
 
 const start = async () => {
     try {

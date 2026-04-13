@@ -1,9 +1,10 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { Roles } from "../entities/Roles";
 import { DataSource } from "typeorm";
+import { Role } from "../entities/Role";
 import { Organization } from "../entities/Organization";
+import { User } from "../entities/User";
 
 const MysqlDataSource = new DataSource({
     type: "mysql",
@@ -12,9 +13,9 @@ const MysqlDataSource = new DataSource({
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE_NAME,
-    entities: [Roles, Organization],
+    entities: [Role, Organization, User],
     synchronize: true,
-    logging: true,
+    logging: false,
 });
 
 export default MysqlDataSource;

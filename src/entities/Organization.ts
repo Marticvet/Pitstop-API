@@ -17,7 +17,4 @@ export class Organization {
 
     @UpdateDateColumn()
     updated_at!: Date;
-
-    // @Column()
-    // slug: type idk
 }
