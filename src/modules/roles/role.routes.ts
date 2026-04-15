@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyPluginOptions } from "fastify";
-import { createRole, deleteRole, getAllRoles, getRoleById, updateRole } from "../controllers/roleController";
+import { createRole, deleteRole, getAllRoles, getRoleById, updateRole } from "./role.controller";
 
 const options = {
     schema: {

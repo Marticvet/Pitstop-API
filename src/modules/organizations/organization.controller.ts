@@ -1,5 +1,5 @@
-import MysqlDataSource from "../db/db.connect";
-import { Organization } from "../entities/Organization";
+import MysqlDataSource from "../../app/db/db.connect";
+import { Organization } from "./organization.entity";
 
 import { FastifyReply, FastifyRequest } from "fastify";
 

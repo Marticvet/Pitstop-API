@@ -1,5 +1,5 @@
-import MysqlDataSource from "../db/db.connect";
-import { Role } from "../entities/Role";
+import MysqlDataSource from "../../app/db/db.connect";
+import { Role } from "./role.entity";
 
 import {
     FastifyReply,

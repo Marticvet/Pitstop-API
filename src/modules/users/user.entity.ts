@@ -3,9 +3,11 @@ import {
     CreateDateColumn,
     Entity,
     Index,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
+import { Membership } from "../memberships/membership.entity";
 
 @Entity()
 export class User {
@@ -25,7 +27,7 @@ export class User {
     @Column()
     last_name!: string;
 
-    @Column()
+    @Column({ default: true })
     isActive!: boolean;
 
     @CreateDateColumn()
@@ -33,4 +35,7 @@ export class User {
 
     @UpdateDateColumn()
     update_at!: Date;
+
+    @OneToMany(() => Membership, (membership) => membership.user)
+    memberships!: Membership[];
 }

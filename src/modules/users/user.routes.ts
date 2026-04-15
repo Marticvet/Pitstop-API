@@ -6,9 +6,9 @@ import {
     getAllUsers,
     loginUser,
     registerUser,
-} from "../controllers/userController";
+} from "./user.controller";
 
-import { auth } from "../middlewares/auth";
+import { auth } from "../../app/shared/middlewares/auth";
 
 const options = {
     schema: {

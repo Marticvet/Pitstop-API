@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyPluginOptions } from "fastify";
-import { getOrganizationById, getAllOrganizations, createOrganization, editOrganization, deleteOrganization } from "../controllers/organizationController";
+import { getOrganizationById, getAllOrganizations, createOrganization, editOrganization, deleteOrganization } from "./organization.controller";
 
 const options = {
     schema: {

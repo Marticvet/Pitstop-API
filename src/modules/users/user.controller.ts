@@ -1,12 +1,12 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import MysqlDataSource from "../db/db.connect";
-import { User } from "../entities/User";
+import MysqlDataSource from "../../app/db/db.connect";
+import { User } from "./user.entity";
 
 import {
     hashPassword,
     sanitizeUser,
     verifyPassword,
-} from "../helpers/bcrypt_helper";
+} from "../../app/shared/helpers/bcrypt_helper";
 
 const jwt = require("jsonwebtoken");
 
