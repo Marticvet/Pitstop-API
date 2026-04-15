@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyPluginOptions } from "fastify";
 import { createMembership } from "./membership.controller";
-import { auth } from "src/app/shared/middlewares/auth";
+import { auth } from "../../app/shared/middlewares/auth";
 
-const createMembershipOptions = {
+const options = {
     schema: {
         body: {
             type: "object",
@@ -25,8 +25,7 @@ async function membershipRouter(
 ) {
     fastify.post(
         "/organizations/:organizationId/memberships",
-        // { preHandler: auth },
-        createMembershipOptions,
+        { preHandler: auth, ...options },
         createMembership
     );
 }
