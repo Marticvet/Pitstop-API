@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import MysqlDataSource from "../../app/db/db.connect";
 import { User } from "./user.entity";
+import crypto from "crypto";
 
 import {
     hashPassword,
@@ -37,6 +38,15 @@ type UpdateUserParams = {
 
 type DeleteUserParams = {
     userId: string;
+};
+
+type ForgotPasswordBody = {
+    email: string;
+};
+
+type ResetPasswordBody = {
+    token: string;
+    newPassword: string;
 };
 
 const userRepo = MysqlDataSource.getRepository(User);
@@ -385,6 +395,118 @@ export async function deleteUser(request: FastifyRequest, reply: FastifyReply) {
                 msg: "User has been successfully deleted!",
             });
         }
+    } catch (error) {
+        request.log.error(error);
+
+        return reply.code(500).send({
+            msg: "Something went wrong. Please try again later.",
+        });
+    }
+}
+
+export async function forgotPassword(
+    request: FastifyRequest,
+    reply: FastifyReply
+) {
+    try {
+        const { email } = request.body as ForgotPasswordBody;
+
+        if (!email || email.trim().length < 3) {
+            return reply.code(400).send({
+                msg: "Email is required",
+            });
+        }
+
+        const user = await userRepo.findOne({
+            where: { email },
+            select: ["id", "email"],
+        });
+
+        if (!user) {
+            return reply.code(200).send({
+                msg: "If an account with that email exists, a reset link has been sent.",
+            });
+        }
+
+        const rawToken = crypto.randomBytes(32).toString("hex");
+        const hashedToken = crypto
+            .createHash("sha256")
+            .update(rawToken)
+            .digest("hex");
+
+        const expires = new Date(Date.now() + 15 * 60 * 1000);
+
+        await userRepo.update(user.id, {
+            reset_password_token: hashedToken,
+            reset_password_expires: expires,
+        });
+
+        const resetLink = `https://your-frontend.com/reset-password?token=${rawToken}`;
+
+        request.log.info({ resetLink, userId: user.id }, "Password reset link generated");
+
+        return reply.code(200).send({
+            msg: "If an account with that email exists, a reset link has been sent.",
+            resetLink,
+        });
+    } catch (error) {
+        request.log.error(error);
+
+        return reply.code(500).send({
+            msg: "Something went wrong. Please try again later.",
+        });
+    }
+}
+
+export async function resetPassword(
+    request: FastifyRequest,
+    reply: FastifyReply
+) {
+    try {
+        const { token, newPassword } = request.body as ResetPasswordBody;
+
+        if (!token || token.trim().length === 0) {
+            return reply.code(400).send({
+                msg: "Token is required",
+            });
+        }
+
+        if (!newPassword || newPassword.trim().length < 8) {
+            return reply.code(400).send({
+                msg: "Password must be at least 8 characters long",
+            });
+        }
+
+        const hashedToken = crypto
+            .createHash("sha256")
+            .update(token)
+            .digest("hex");
+
+        const user = await userRepo
+            .createQueryBuilder("user")
+            .addSelect("user.reset_password_token")
+            .addSelect("user.reset_password_expires")
+            .where("user.reset_password_token = :token", { token: hashedToken })
+            .andWhere("user.reset_password_expires > :now", { now: new Date() })
+            .getOne();
+
+        if (!user) {
+            return reply.code(400).send({
+                msg: "Invalid or expired reset token",
+            });
+        }
+
+        const hashedPassword = await hashPassword(newPassword);
+
+        await userRepo.update(user.id, {
+            password: hashedPassword,
+            reset_password_token: null,
+            reset_password_expires: null,
+        });
+
+        return reply.code(200).send({
+            msg: "Password reset successfully",
+        });
     } catch (error) {
         request.log.error(error);
 

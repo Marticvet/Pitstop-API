@@ -38,4 +38,19 @@ export class User {
 
     @OneToMany(() => Membership, (membership) => membership.user)
     memberships!: Membership[];
+
+    @Column({
+        type: "varchar",
+        length: 255,
+        nullable: true,
+        select: false,
+    })
+    reset_password_token!: string | null;
+
+    @Column({
+        type: "datetime",
+        nullable: true,
+        select: false,
+    })
+    reset_password_expires!: Date | null;
 }
