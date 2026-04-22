@@ -190,7 +190,13 @@ export async function editOrganization(
                 msg: "Something went wrong. Please try again later!",
             });
         }
-    } catch (error) {}
+    } catch (error) {
+        request.log.error(error);
+
+        return reply.code(500).send({
+            msg: "Something went wrong. Please try again later.",
+        });
+    }
 }
 
 export async function deleteOrganization(

@@ -7,6 +7,7 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 import { Membership } from "../memberships/membership.entity";
+import {Customer} from "../customer/customer.entity";
 
 @Entity()
 export class Organization {
@@ -27,4 +28,7 @@ export class Organization {
 
     @UpdateDateColumn()
     updated_at!: Date;
+
+    @OneToMany(() => Customer, (customer) => customer.organizationId, {onDelete: "CASCADE"})
+    customers!: Customer[];
 }

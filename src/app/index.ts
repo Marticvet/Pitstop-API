@@ -8,12 +8,14 @@ import userRouter from "../modules/users/user.routes";
 import roleRouter from "../modules/roles/role.routes";
 import organizationRouter from "../modules/organizations/organization.routes";
 import membershipRouter from "../modules/memberships/membership.routes";
+import customerRouter from "../modules/customer/customer.routes";
 
 const server: FastifyInstance = Fastify({});
 
 server.register(roleRouter, {prefix: "/roles"});
 server.register(organizationRouter, {prefix: "/orgranizations"});
 server.register(userRouter, {prefix: "/users"});
+server.register(customerRouter, {prefix: "/customers"});
 server.register(membershipRouter);
 
 const start = async () => {

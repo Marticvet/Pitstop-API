@@ -323,7 +323,6 @@ export async function editMembership(
 
         const editedMembership = await membershipRepo
             .createQueryBuilder("membership")
-
             .update(Membership)
             .set({ role })
             .where("userId = :userId", { userId })
@@ -360,37 +359,46 @@ export async function deleteMembership(
     request: FastifyRequest,
     reply: FastifyReply
 ) {
-    const { organizationId, userId } = request.params as {
-        organizationId: string;
-        userId: string;
-    };
+    try {
+        const { organizationId, userId } =
+            request.params as DeleteMembershipParams;
 
-    const orgId = Number(organizationId);
-    const usrId = Number(userId);
+        const orgId = Number(organizationId);
+        const usrId = Number(userId);
 
-    if (Number.isNaN(orgId)) {
-        return reply.code(400).send({ msg: "Invalid organization id" });
-    }
+        if (Number.isNaN(orgId)) {
+            return reply.code(400).send({ msg: "Invalid organization id" });
+        }
 
-    if (Number.isNaN(usrId)) {
-        return reply.code(400).send({ msg: "Invalid user id" });
-    }
+        if (Number.isNaN(usrId)) {
+            return reply.code(400).send({ msg: "Invalid user id" });
+        }
 
-    const result = await membershipRepo
-        .createQueryBuilder()
-        .delete()
-        .from(Membership)
-        .where("organizationId = :organizationId", { organizationId: orgId })
-        .andWhere("userId = :userId", { userId: usrId })
-        .execute();
+        const result = await membershipRepo
+            .createQueryBuilder()
+            .delete()
+            .from(Membership)
+            .where("organizationId = :organizationId", {
+                organizationId: orgId,
+            })
+            .andWhere("userId = :userId", { userId: usrId })
+            .execute();
 
-    if (result.affected === 0) {
-        return reply.code(404).send({
-            msg: "Membership not found",
+        if (result.affected === 0) {
+            return reply.code(404).send({
+                msg: "Membership not found",
+            });
+        }
+
+        return reply.code(200).send({
+            msg: "Membership deleted successfully",
+        });
+    } catch (error) {
+        console.error(error);
+        request.log.error(error);
+
+        return reply.code(500).send({
+            msg: "Something went wrong. Please try again later.",
         });
     }
-
-    return reply.code(200).send({
-        msg: "Membership deleted successfully",
-    });
 }
