@@ -7,6 +7,7 @@ import { Organization } from "../../modules/organizations/organization.entity";
 import { User } from "../../modules/users/user.entity";
 import { Membership } from "../../modules/memberships/membership.entity";
 import { Customer } from "../../modules/customer/customer.entity";
+import { Service } from "../../modules/service/service.entity";
 
 const MysqlDataSource = new DataSource({
     type: "mysql",
@@ -15,7 +16,7 @@ const MysqlDataSource = new DataSource({
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE_NAME,
-    entities: [Role, Organization, User, Membership, Customer],
+    entities: [Role, Organization, User, Membership, Customer, Service],
     synchronize: true,
     logging: false,
 });
