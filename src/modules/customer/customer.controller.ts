@@ -2,6 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import MysqlDataSource from "../../app/db/db.connect";
 import { Customer } from "../customer/customer.entity";
 import { Organization } from "../organizations/organization.entity";
+import { Like } from "typeorm";
 
 const customerRepo = MysqlDataSource.getRepository(Customer);
 const organizationRepo = MysqlDataSource.getRepository(Organization);
@@ -51,7 +52,7 @@ type GetCustomersQuery = {
     email?: string;
     phone?: string;
     full_name?: string;
-    tag?: string;
+    tags?: string;
     sortBy?: "createdAt" | "updatedAt" | "full_name" | "email";
     sortOrder?: "ASC" | "DESC";
 };
@@ -385,7 +386,7 @@ export async function getCustomers(
             email,
             phone,
             full_name,
-            tag,
+            tags,
             sortBy,
             sortOrder,
         } = request.query as GetCustomersQuery;
@@ -422,50 +423,46 @@ export async function getCustomers(
 
         const query = await customerRepo.createQueryBuilder("customer");
 
-        // this doesnt work!!!!
-        // if (search) {
-        //     query.andWhere(
-        //         `(
-        //             customer.full_name = :search
-        //             OR customer.email = :search
-        //             OR customer.phone = :search
-        //         )`,
-        //         { search }
-        //     );
-        // }
+        if (search) {
+            query.andWhere(
+                `(
+                    customer.full_name LIKE :search
+                    OR customer.email LIKE :search
+                    OR customer.phone LIKE :search
+                )`,
+                { search: `%${search}%` }
+            );
+        }
 
         if (email) {
-            query.andWhere("customer.email = :email", {
-                email,
+            query.andWhere("customer.email LIKE :email", {
+                email: `%${email}%`,
             });
         }
 
         if (phone) {
-            query.andWhere("customer.phone = :phone", {
-                phone,
+            query.andWhere("customer.phone LIKE :phone", {
+                phone: `%${phone}%`,
             });
         }
 
         if (full_name) {
-            query.andWhere("customer.full_name = :full_name", {
-                full_name,
+            query.andWhere("customer.full_name LIKE :full_name", {
+                full_name: `%${full_name}%`,
             });
         }
 
-        if (tag) {
-            query.andWhere("customer.tag = :tag", {
-                tag,
+        if (tags) {
+            query.andWhere("customer.tags LIKE :tags", {
+                tags: `%${tags}%`,
             });
         }
 
+        if (sortBy) {
+            query.orderBy(sortBy, safeSortOrder);
+        }
 
-        // this doesnt work!!!!
-        // query
-        //     .orderBy(`customer.${safeSortBy}`, safeSortOrder)
-        //     .skip((pageNumber - 1) * pageSizeNumber)
-        //     .take(pageSizeNumber);
-
-        // todo -> where clauses but not with full match!
+        query.skip((pageNumber - 1) * pageSizeNumber).take(pageSizeNumber);
 
         const [customers, total] = await query.getManyAndCount();
 

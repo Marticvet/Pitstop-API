@@ -36,10 +36,10 @@ const getCustomersSchema = {
                 email: { type: "string" },
                 phone: { type: "string" },
                 fullName: { type: "string" },
-                tag: { type: "string" },
+                tags: { type: "string" },
                 sortBy: {
                     type: "string",
-                    enum: ["createdAt", "full_name", "email"],
+                    enum: ["createdAt", "updatedAt", "full_name", "email"],
                 },
                 sortOrder: {
                     type: "string",
@@ -67,9 +67,6 @@ async function customerRouter(
     fastify.delete("/:customerId", deleteCustomer);
 
     fastify.get("/", getCustomersSchema, getCustomers);
-
-
-
 }
 
 export default customerRouter;
