@@ -1,5 +1,10 @@
 import { FastifyInstance, FastifyPluginOptions } from "fastify";
-import { getAllServices } from "./service.controller";
+import {
+    createService,
+    editService,
+    getAllServices,
+    getServiceById,
+} from "./service.controller";
 
 const options = {
     schema: {
@@ -15,12 +20,12 @@ const options = {
             ],
             additionalProperties: false,
             properties: {
-                organizationId: { type: "number", length: 1},
+                organizationId: { type: "number" },
                 durationMinutes: { type: "number" },
                 price: { type: "number" },
-                currency: { type: "number" },
+                currency: { type: "string", minLength: 1 },
                 isActive: { type: "boolean" },
-                name: { type: "string" },
+                name: { type: "string", minLength: 1 },
             },
         },
     },
@@ -30,7 +35,10 @@ async function serviceRouter(
     fastify: FastifyInstance,
     _options: FastifyPluginOptions
 ) {
-    fastify.get("", options, getAllServices);
+    fastify.get("", getAllServices);
+    fastify.post("", options, createService);
+    fastify.get("/:serviceId", getServiceById);
+    fastify.put("/:serviceId", options, editService);
 }
 
 export default serviceRouter;

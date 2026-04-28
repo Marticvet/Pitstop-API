@@ -1,6 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-
 @Entity()
 export class Service {
     @PrimaryGeneratedColumn()
@@ -8,18 +7,30 @@ export class Service {
 
     @Column()
     organizationId!: number;
-   
+
     @Column()
     name!: string;
 
-    @Column()
+    @Column({
+        name: "durationMinutes",
+        type: "decimal",
+        precision: 10,
+        scale: 2,
+        default: 0.0,
+    })
     durationMinutes!: number;
 
-    @Column()
+    @Column({
+        name: "price",
+        type: "decimal",
+        precision: 10,
+        scale: 2,
+        default: 0.0,
+    })
     price!: number;
 
     @Column()
-    currency!: number;
+    currency!: string;
 
     @Column()
     isActive!: boolean;

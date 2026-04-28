@@ -7,7 +7,7 @@ type CreateServiceBody = {
     name: string;
     durationMinutes: number;
     price: number;
-    currency: number;
+    currency: string;
     isActive: boolean;
 };
 
@@ -16,9 +16,13 @@ type EditServiceBody = {
     name: string;
     durationMinutes: number;
     price: number;
-    currency: number;
+    currency: string;
     isActive: boolean;
 };
+
+type ServiceParams = {
+    serviceId: number;
+}
 
 const serviceRepo = MysqlDataSource.getRepository(Service);
 
@@ -53,24 +57,31 @@ export async function createService(
             durationMinutes,
             price,
             currency,
-            isActive
+            isActive,
         } = request.body as CreateServiceBody;
 
         const errors = [];
 
-        if (!name || name.trim().length < 3) {
+        if (!name || name.trim().length < 1) {
             errors.push({
                 field: "name",
-                message: "Name must be at least 3 characters long",
+                message: "Name must be at least 1 character long",
             });
         }
 
-        // if (!subscription_plan || subscription_plan.trim().length < 3) {
-        //     errors.push({
-        //         field: "subscription_plan",
-        //         message: "Subscription plan must be at least 3 characters long",
-        //     });
-        // }
+        if (!currency || currency.trim().length < 1) {
+            errors.push({
+                field: "currency",
+                message: "Currency must be at least 1 character long",
+            });
+        }
+
+        if (!currency || currency.trim().length < 1) {
+            errors.push({
+                field: "currency",
+                message: "Currency must be at least 1 character long",
+            });
+        }
 
         if (errors.length > 0) {
             return reply.code(400).send({
@@ -79,7 +90,89 @@ export async function createService(
             });
         }
 
-        
+        const insertService = await serviceRepo
+            .createQueryBuilder("service")
+            .insert()
+            .into(Service)
+            .values({
+                organizationId,
+                name,
+                durationMinutes,
+                price,
+                currency,
+                isActive,
+            })
+            .execute();
+
+        const insertedId = insertService.identifiers[0]?.id;
+
+        const createdService = await serviceRepo
+            .createQueryBuilder("service")
+            .where("service.id = :id", { id: insertedId })
+            .getOne();
+
+        if (insertService.raw && insertService.raw.affectedRows === 1) {
+            return reply.send({
+                msg: "New service has been successfully created!",
+                data: createdService,
+            });
+        } else if (insertService.raw && insertService.raw.affectedRows === 0) {
+            return reply.code(400).send({
+                msg: "Something went wrong. Please try again later!",
+            });
+        }
+    } catch (error) {
+        reply.log.error(error);
+        console.error(error);
+
+        return reply.code(500).send({
+            msg: "Something went wrong. Please try again later.",
+        });
+    }
+}
+
+export async function getServiceById(request: FastifyRequest, reply: FastifyReply) {
+    try {
+        const { serviceId } = request.params as ServiceParams;
+
+        const serivceExist = await serviceRepo
+            .createQueryBuilder()
+            .where("service.id = :id", { id: serviceId })
+            .getOne();
+
+        if (serivceExist === null) {
+            return reply.code(404).send({
+                msg: `Service not found!`,
+            });
+        }
+
+        return reply.code(200).send(serivceExist);
+    } catch (error) {
+        reply.log.error(error);
+        console.error(error);
+
+        return reply.code(500).send({
+            msg: "Something went wrong. Please try again later.",
+        });
+    }
+}
+
+export async function editService(request: FastifyRequest, reply: FastifyReply) {
+    try {
+        const { serviceId } = request.params as ServiceParams;
+
+        const serivceExist = await serviceRepo
+            .createQueryBuilder()
+            .where("service.id = :id", { id: serviceId })
+            .getOne();
+
+        if (serivceExist === null) {
+            return reply.code(404).send({
+                msg: `Service not found!`,
+            });
+        }
+
+        return reply.code(200).send(serivceExist);
     } catch (error) {
         reply.log.error(error);
         console.error(error);
